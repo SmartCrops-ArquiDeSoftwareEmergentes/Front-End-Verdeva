@@ -25,7 +25,7 @@ const closeNotifications = () => {
         class="main"
     >
       <div class="toolbar">
-        <input type="text" class="search-input" placeholder="Buscar en Nutricontrol..." />
+        <input type="text" class="search-input" placeholder="Buscar en Verdeva..." />
         <div class="toolbar-icons">
           <div class="notification-container">
             <button class="icon-btn" @click.stop="toggleNotifications">

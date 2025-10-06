@@ -93,7 +93,7 @@ const calendarWeeks = computed(() => {
   <div class="home-container">
     <div class="dashboard">
       <div class="header">
-        <h2>Bienvenido a NutriControl, <span class="user-name">{{ dashboard.usuario.username }}</span></h2>
+        <h2>Bienvenido a Verdeva, <span class="user-name">{{ dashboard.usuario.username }}</span></h2>
       </div>
 
       <div class="cards-grid">
@@ -347,4 +347,3 @@ const calendarWeeks = computed(() => {
   background: var(--secondary);
 }
 </style>
-
