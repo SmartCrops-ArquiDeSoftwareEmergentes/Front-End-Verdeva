@@ -1,0 +1,183 @@
+{
+  "usuario": {
+    "nombre": "Hernan",
+    "apellido": "Morales",
+    "creacionCuenta": "2023-10-01",
+    "suscripcion": "ESTÁNDAR",
+    "correoElectronico": "ernan@gmail.com"
+  },
+  "camposAgricolas": {
+    "activos": 5,
+    "inactivos": 1
+  },
+  "aguaAhorrada": {
+    "lunes": 5,
+    "martes": 3,
+    "miercoles": 6,
+    "jueves": 8,
+    "viernes": 4,
+    "sabado": 2,
+    "domingo": 3
+  },
+  "dispositivosIoT": 8,
+  "totalCultivos": 10,
+  "calendario": {
+    "mes": "Mayo",
+    "anio": 2025,
+    "diaActual": 9
+  },
+  "recomendacionDelDia": "Activa el actuador de Riego ahora mismo",
+  "crecimientoCultivos": [
+    {
+      "nombre": "Tomate",
+      "porcentaje": 30
+    },
+    {
+      "nombre": "Lechuga",
+      "porcentaje": 21
+    },
+    {
+      "nombre": "Mango",
+      "porcentaje": 25
+    },
+    {
+      "nombre": "Pera",
+      "porcentaje": 21
+    },
+    {
+      "nombre": "Platano",
+      "porcentaje": 10
+    },
+    {
+      "nombre": "Yuca",
+      "porcentaje": 20
+    },
+    {
+      "nombre": "Uva",
+      "porcentaje": 8
+    }
+  ],
+  "alertas": [
+    "Evitar exceso de riego si hay lluvias acumuladas"
+  ],
+  "camposCultivo": [
+    {
+      "nombre": "Campo Norte",
+      "hectareas": 3.5,
+      "estado": "activo",
+      "cultivos": [
+        {
+          "nombre": "Tomate",
+          "fechaSiembra": "2025-04-10",
+          "etapaCrecimiento": "Floración",
+          "cantidad": 150,
+          "foto": "https://example.com/tomate.jpg",
+          "humedadSuelo": 55,
+          "temperaturaAmbiente": 24,
+          "temperaturaSuelo": 22,
+          "nivelNutrientes": "Medio",
+          "phSuelo": 6.8,
+          "horasSol": 7,
+          "radiacionSolar": 550,
+          "dispositivosIoT": [
+            {
+              "codigo": "IOT-TMT-01",
+              "estado": true,
+              "alerta": false
+            }
+          ],
+          "analisis": {
+            "estimaciones": "Se espera una cosecha de 140 a 160 unidades saludables si se mantienen las condiciones actuales.",
+            "riesgos": "Riesgo moderado de aparición de plagas por la humedad elevada. Se debe vigilar presencia de mosca blanca.",
+            "prediccion": "Probabilidad alta de floración exitosa y formación de frutos en los próximos 10 días."
+          },
+          "recomendaciones": [
+            {
+              "descripcion": "Realizar control preventivo contra plagas y mantener la humedad entre 50% y 60% para evitar enfermedades fúngicas."
+            },
+            {
+              "descripcion": "Aplicar fertilizante rico en potasio para fortalecer el desarrollo floral."
+            }
+          ]
+        },
+        {
+          "nombre": "Lechuga",
+          "fechaSiembra": "2025-03-15",
+          "etapaCrecimiento": "Maduración",
+          "cantidad": 300,
+          "foto": "https://example.com/lechuga.jpg",
+          "humedadSuelo": 60,
+          "temperaturaAmbiente": 21,
+          "temperaturaSuelo": 20,
+          "nivelNutrientes": "Alto",
+          "phSuelo": 6.5,
+          "horasSol": 6,
+          "radiacionSolar": 530,
+          "dispositivosIoT": [],
+          "analisis": {
+            "estimaciones": "El 95% de las plantas se encuentran en condiciones óptimas para ser cosechadas en un plazo de 5 a 7 días.",
+            "riesgos": "Condiciones actuales favorables. Riesgo bajo de enfermedades. Se debe evitar el exceso de riego en esta etapa.",
+            "prediccion": "Producción esperada de alta calidad con hojas crujientes y buena textura si no se alteran las condiciones ambientales."
+          },
+          "recomendaciones": [
+            {
+              "descripcion": "Planificar cosecha manual en la próxima semana para mantener frescura y calidad."
+            },
+            {
+              "descripcion": "Reducir ligeramente el riego para evitar pudrición en la base de las plantas."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "Campo Sur",
+      "hectareas": 4.2,
+      "estado": "activo",
+      "cultivos": [
+        {
+          "nombre": "Mango",
+          "fechaSiembra": "2025-02-20",
+          "etapaCrecimiento": "Crecimiento vegetativo",
+          "cantidad": 80,
+          "foto": "https://example.com/mango.jpg",
+          "humedadSuelo": 48,
+          "temperaturaAmbiente": 28,
+          "temperaturaSuelo": 26,
+          "nivelNutrientes": "Medio",
+          "phSuelo": 6.7,
+          "horasSol": 8,
+          "radiacionSolar": 600,
+          "dispositivosIoT": [
+            {
+              "codigo": "IOT-MNG-01",
+              "estado": true,
+              "alerta": true
+            },
+            {
+              "codigo": "IOT-MNG-02",
+              "estado": false,
+              "alerta": false
+            }
+          ],
+          "analisis": {
+            "estimaciones": "Crecimiento esperado de 10 a 15 cm en las próximas 3 semanas si continúan las condiciones cálidas.",
+            "riesgos": "Alerta activa en uno de los sensores. Posible problema de exceso de temperatura en raíces o fallo de riego.",
+            "prediccion": "Buen desarrollo foliar previsto. Requiere ajustes menores para evitar estrés hídrico."
+          },
+          "recomendaciones": [
+            {
+              "descripcion": "Revisar el sensor IOT-MNG-01 para verificar la causa de la alerta y evaluar estado del riego."
+            },
+            {
+              "descripcion": "Aplicar fertilización foliar rica en nitrógeno para potenciar el crecimiento vegetativo."
+            },
+            {
+              "descripcion": "Asegurar sombra parcial durante las horas más intensas del día si se detecta estrés térmico."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

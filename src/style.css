@@ -1,0 +1,14 @@
+*{
+  margin: 0px;
+  padding: 0px;
+  font-family: "Kaisei Tokumin", serif;
+}
+:root {
+  --verde-oscuro: #014728;
+  --marron-medio: #8D6E3;
+  --gris-oscuro: #212121;
+  --blanco: #FFFFFF;
+  --sidebar-bg: var(--verde-oscuro);
+  --sidebar-width: 350px;
+  --sidebar-collapsed-width: 90px;
+}
