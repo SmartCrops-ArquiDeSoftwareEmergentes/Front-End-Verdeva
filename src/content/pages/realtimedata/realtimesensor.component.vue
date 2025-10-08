@@ -12,7 +12,7 @@ const username = localStorage.getItem('username')
 const BASE_URL =
     import.meta.env.MODE === 'development'
         ? '/api'
-        : 'https://nutricontrolapifilesadministration-bvf4bbbpgpb5h5dw.brazilsouth-01.azurewebsites.net'
+        : 'https://verdeva-ayagdeb0dceddwgw.canadacentral-01.azurewebsites.net'
 
 onMounted(async () => {
   if (!jwt || !username) {

@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://nutricontrolapifilesadministration-bvf4bbbpgpb5h5dw.brazilsouth-01.azurewebsites.net',
+        target: 'https://verdeva-ayagdeb0dceddwgw.canadacentral-01.azurewebsites.net',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, '')
       }

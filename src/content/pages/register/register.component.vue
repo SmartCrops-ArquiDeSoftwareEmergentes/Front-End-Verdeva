@@ -1,16 +1,40 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
 const nombres = ref('')
 const apellidos = ref('')
+const dni = ref('')
 const correo = ref('')
+const phone = ref('')
 const password = ref('')
+const confirmPassword = ref('')
+// El rol será fijo y automático
+const role = ref('1')
+const errorMsg = ref('')
 
-const submit = () => {
-  // Aquí podrías manejar registro via API
-  router.push('/login')
+const submit = async () => {
+  errorMsg.value = ''
+  try {
+    const response = await axios.post('https://verdeva-ayagdeb0dceddwgw.canadacentral-01.azurewebsites.net/api/v1/User/register', {
+      username: nombres.value + ' ' + apellidos.value,
+      dniOrRuc: dni.value,
+      role: role.value,
+      emailAddress: correo.value,
+      phone: phone.value,
+      passwordHashed: password.value,
+      confirmPassword: confirmPassword.value
+    })
+    router.push('/login')
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.errors) {
+      errorMsg.value = Object.values(error.response.data.errors).flat().join(' ')
+    } else {
+      errorMsg.value = 'Error en el registro. Verifica los datos.'
+    }
+  }
 }
 </script>
 
@@ -38,9 +62,21 @@ const submit = () => {
               class="text-input"
           />
           <input
+              v-model="dni"
+              type="text"
+              placeholder="DNI o RUC*"
+              class="text-input"
+          />
+          <input
               v-model="correo"
               type="email"
               placeholder="Correo electrónico*"
+              class="text-input"
+          />
+          <input
+              v-model="phone"
+              type="text"
+              placeholder="Teléfono*"
               class="text-input"
           />
           <input
@@ -49,7 +85,14 @@ const submit = () => {
               placeholder="Contraseña*"
               class="text-input"
           />
+          <input
+              v-model="confirmPassword"
+              type="password"
+              placeholder="Confirmar contraseña*"
+              class="text-input"
+          />
         </div>
+        <div v-if="errorMsg" style="color: red; margin-bottom: 10px;">{{ errorMsg }}</div>
         <button class="btn-register" @click="submit">Regístrate</button>
         <div class="footer-link">
           <span>¿Tienes una cuenta?</span>
@@ -69,11 +112,14 @@ const submit = () => {
 }
 .register-image {
   flex: 2;
+  min-width: 0;
+  min-height: 0;
 }
 .register-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 .register-form {
   flex: 1;
@@ -83,6 +129,8 @@ const submit = () => {
   background: rgba(255,255,255,0.95);
   padding: 40px 20px;
   box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
 }
 .form-wrapper {
   width: 100%;
@@ -96,7 +144,8 @@ const submit = () => {
   margin-bottom: 16px;
 }
 .logo-image {
-  width: 250px;
+  width: 200px;
+  max-width: 80vw;
   height: auto;
 }
 .fields {
@@ -140,6 +189,8 @@ const submit = () => {
 .footer-link {
   font-size: 14px;
   color: #666;
+  text-align: center;
+  word-break: break-word;
 }
 .footer-link a {
   margin-left: 4px;
@@ -151,17 +202,76 @@ const submit = () => {
   text-decoration: underline;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .register-container {
     flex-direction: column;
+    height: auto;
+    min-height: 100vh;
   }
   .register-image {
-    height: 40vh;
+    width: 100vw;
+    height: 30vh;
+    min-height: 180px;
+    flex: none;
+  }
+  .register-image img {
+    width: 100vw;
+    height: 100%;
+    min-height: 180px;
+    object-fit: cover;
   }
   .register-form {
-    height: auto;
-    overflow: visible;
+    width: 100vw;
+    min-width: 0;
+    min-height: 0;
+    padding: 24px 8px;
     background: #fff;
+  }
+  .form-wrapper {
+    max-width: 100vw;
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .register-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+  .register-image {
+    width: 100vw;
+    height: 25vh;
+    min-height: 120px;
+    flex: none;
+  }
+  .register-image img {
+    width: 100vw;
+    height: 100%;
+    min-height: 120px;
+    object-fit: cover;
+  }
+  .register-form {
+    width: 100vw;
+    min-width: 0;
+    min-height: 0;
+    padding: 16px 4px;
+    background: #fff;
+  }
+  .form-wrapper {
+    max-width: 100vw;
+    padding: 0 2px;
+  }
+  .logo-image {
+    width: 120px;
+    max-width: 60vw;
+  }
+  .fields {
+    gap: 10px;
+  }
+  .btn-register {
+    font-size: 15px;
+    padding: 10px;
   }
 }
 </style>

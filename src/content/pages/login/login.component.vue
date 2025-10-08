@@ -11,7 +11,7 @@ const password = ref('')
 const BASE_URL =
     import.meta.env.MODE === 'development'
         ? '/api' // usa el proxy configurado en vite.config.js
-        : 'https://nutricontrolapifilesadministration-bvf4bbbpgpb5h5dw.brazilsouth-01.azurewebsites.net'
+        : 'https://verdeva-ayagdeb0dceddwgw.canadacentral-01.azurewebsites.net'
 
 const submit = async () => {
   try {
