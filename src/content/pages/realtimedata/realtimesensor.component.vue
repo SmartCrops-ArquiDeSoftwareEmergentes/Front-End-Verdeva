@@ -6,57 +6,58 @@ const sensorValues = ref([])
 const isLoading = ref(true)
 const hasError = ref(false)
 
-const jwt = localStorage.getItem('jwt_token')
-const username = localStorage.getItem('username')
+// Fuente externa proporcionada por el usuario (Beeceptor)
+const READINGS_URL = 'https://verdeva-sensor.free.beeceptor.com/api/sensor-readings'
 
-const BASE_URL =
-    import.meta.env.MODE === 'development'
-        ? '/api'
-        : 'https://verdeva-ayagdeb0dceddwgw.canadacentral-01.azurewebsites.net'
+function groupBy(list, keyFn) {
+  return list.reduce((acc, item) => {
+    const key = keyFn(item)
+    if (!acc[key]) acc[key] = []
+    acc[key].push(item)
+    return acc
+  }, {})
+}
+
+function formatTimestamp(ts) {
+  try {
+    const d = new Date(ts)
+    return d.toLocaleString()
+  } catch (e) {
+    return ts
+  }
+}
 
 onMounted(async () => {
-  if (!jwt || !username) {
-    console.error('JWT o username no están disponibles en localStorage')
-    hasError.value = true
-    isLoading.value = false
-    return
-  }
-
   try {
-    console.log('🌐 Realizando petición con JWT:', jwt)
-    console.log('👤 Usuario:', username)
+    isLoading.value = true
+    hasError.value = false
 
-    const headers = {
-      Authorization: `Bearer ${jwt}`
-    }
+    const res = await axios.get(READINGS_URL)
 
-    const userUrl = `${BASE_URL}/api/Device/sensors/by-user/${encodeURIComponent(username)}`
-    const sensorRes = await axios.get(userUrl, { headers })
+    const readings = Array.isArray(res.data) ? res.data : []
 
-    const sensors = sensorRes.data
-    console.log('🔧 Sensores encontrados:', sensors.length)
+    // Agrupar por sensor_id
+    const grouped = groupBy(readings, r => r.sensor_id)
 
-    const promises = sensors.map(async (sensor) => {
-      try {
-        const readingsUrl = `${BASE_URL}/api/Device/sensors/${sensor.id}/readings`
-        const readingRes = await axios.get(readingsUrl, { headers })
-        const latest = readingRes.data.at(-1)
-        return {
-          type: sensor.type,
-          value: latest ? `${latest.value} ${sensor.unitOfMeasurement}` : 'Sin datos'
-        }
-      } catch (innerErr) {
-        console.warn(`⚠️ Error al obtener lectura para sensor ${sensor.id}:`, innerErr)
-        return {
-          type: sensor.type,
-          value: 'Error al leer'
-        }
+    // Construir arreglo para la UI
+    sensorValues.value = Object.keys(grouped).map(id => {
+      const items = grouped[id].slice().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+      const latest = items[items.length - 1] || null
+      return {
+        sensor_id: Number(id),
+        title: `Sensor ${id}`,
+        latest_value: latest ? latest.value : null,
+        latest_timestamp: latest ? latest.timestamp : null,
+        readings: items.map(r => ({
+          id: r.id,
+          value: r.value,
+          timestamp: r.timestamp,
+          created_user: r.created_user
+        }))
       }
-    })
-
-    sensorValues.value = await Promise.all(promises)
+    }).sort((a, b) => a.sensor_id - b.sensor_id)
   } catch (error) {
-    console.error('❌ Error obteniendo sensores:', error)
+    console.error('Error fetching sensor readings:', error)
     hasError.value = true
   } finally {
     isLoading.value = false
@@ -75,21 +76,64 @@ onMounted(async () => {
     </div>
 
     <div v-else-if="hasError" class="error">
-      Error al cargar datos. Verifica tu conexión o autenticación.
+      Error al cargar datos. Verifica tu conexión.
     </div>
 
-    <div v-else class="sensor-list">
+    <div v-else class="sensor-grid">
       <div
           v-for="(sensor, index) in sensorValues"
-          :key="index"
+          :key="sensor.sensor_id"
           class="sensor-card"
       >
-        <p class="sensor-type">{{ sensor.type }}</p>
-        <p class="sensor-value">{{ sensor.value }}</p>
+        <div class="card-header">
+          <div>
+            <p class="sensor-type">{{ sensor.title }}</p>
+            <p class="sensor-sub">Último: <strong>{{ sensor.latest_value !== null ? sensor.latest_value : 'Sin datos' }}</strong></p>
+            <p class="sensor-sub">{{ sensor.latest_timestamp ? formatDate(sensor.latest_timestamp) : '' }}</p>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="reads-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Value</th>
+                <th>Created User</th>
+                <th>ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="r in sensor.readings" :key="r.id">
+                <td>{{ formatDate(r.timestamp) }}</td>
+                <td>{{ r.value }}</td>
+                <td>{{ r.created_user }}</td>
+                <td>{{ r.id }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+
   </div>
 </template>
+
+<script>
+// helper functions expuestos al template
+export default {
+  methods: {
+    formatDate(ts) {
+      try {
+        const d = new Date(ts)
+        return d.toLocaleString()
+      } catch (e) {
+        return ts
+      }
+    }
+  }
+}
+</script>
 
 <style scoped>
 .sensor-wrapper {
@@ -123,9 +167,9 @@ onMounted(async () => {
     transform: rotate(360deg);
   }
 }
-.sensor-list {
-  display: flex;
-  flex-direction: column;
+.sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
 }
 .sensor-card {
@@ -133,14 +177,44 @@ onMounted(async () => {
   border-left: 6px solid #024728;
   padding: 16px;
   border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .sensor-type {
   font-size: 18px;
   font-weight: bold;
   color: #024728;
+  margin: 0 0 6px 0;
 }
-.sensor-value {
-  font-size: 16px;
+.sensor-sub {
+  margin: 0;
+  font-size: 13px;
   color: #333;
+}
+.table-wrap {
+  overflow: auto;
+}
+.reads-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.reads-table th,
+.reads-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  text-align: left;
+}
+.reads-table thead th {
+  background: rgba(2,71,40,0.06);
+  color: #024728;
+  font-weight: 600;
 }
 </style>
