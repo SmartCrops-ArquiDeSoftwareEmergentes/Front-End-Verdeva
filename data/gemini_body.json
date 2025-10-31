@@ -1,0 +1,8 @@
+{
+  "question": "¿Recomendaciones de riego para maíz en etapa vegetativa con 25°C y 0 mm de lluvia?",
+  "crop": "maíz",
+  "location": "Piura, PE",
+  "data": { "clima": { "temp": 25, "lluvia_mm": 0 } },
+  "language": "es"
+}
+
