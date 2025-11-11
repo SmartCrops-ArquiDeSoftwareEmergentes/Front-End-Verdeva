@@ -2,6 +2,16 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
+// Mapeo de IDs de sensores a nombres legibles
+const SENSOR_NAME_MAP = {
+  101: 'Temperatura',
+  102: 'Humedad',
+  103: 'Luz',
+  104: 'Lluvia',
+  105: 'pH',
+  106: 'Nutrientes'
+}
+
 // Lecturas y estado UI
 const sensorValues = ref([])
 const isLoading = ref(true)
@@ -42,7 +52,7 @@ onMounted(async () => {
       const latest = items[items.length - 1] || null
       return {
         sensor_id: Number(id),
-        title: `Sensor ${id}`,
+        title: SENSOR_NAME_MAP[id] || `Sensor ${id}`,
         latest_value: latest ? latest.value : null,
         latest_timestamp: latest ? latest.timestamp : null,
         readings: items.map(r => ({
@@ -61,13 +71,17 @@ onMounted(async () => {
   }
 })
 
-// Inferir parámetro y unidad (heurística simple). Ajusta aquí si tienes metadatos reales.
+// Inferir parámetro y unidad basado directamente en el ID del sensor
 function inferParameter(sensor) {
-  const name = (sensor.title || '').toLowerCase()
-  if (name.includes('temp')) return { parameter: 'air_temperature', unit: '°C' }
-  if (name.includes('humedad')) return { parameter: 'soil_moisture', unit: '%' }
-  if (name.includes('ph')) return { parameter: 'soil_ph', unit: 'pH' }
-  return { parameter: 'soil_moisture', unit: '%' } // fallback genérico
+  switch (sensor.sensor_id) {
+    case 101: return { parameter: 'air_temperature', unit: '°C' }
+    case 102: return { parameter: 'soil_moisture', unit: '%' }
+    case 103: return { parameter: 'light_intensity', unit: 'lux' }
+    case 104: return { parameter: 'rainfall', unit: 'mm' }
+    case 105: return { parameter: 'soil_ph', unit: 'pH' }
+    case 106: return { parameter: 'nutrient_level', unit: 'ppm' }
+    default: return { parameter: 'soil_moisture', unit: '%' }
+  }
 }
 
 // Construir payload compatible con el backend
