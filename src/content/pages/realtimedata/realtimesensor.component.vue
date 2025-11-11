@@ -20,13 +20,8 @@ const hasError = ref(false)
 // Recomendaciones por sensor { [sensor_id]: { loading, answer, recommendation, error } }
 const recommendations = ref({})
 
-// Endpoint de la nueva API (proxied por Vite -> https://ai-api-pearl-one.vercel.app)
-// Definido en vite.config.js: '/api/gemini' -> target y rewrite elimina '/api/gemini'
-// Nuestro endpoint real es /v1/agro/ask
-const AGRO_ENDPOINT = '/api/gemini/v1/agro/ask'
-
-// API KEY (x-api-key) para backend FastAPI (NO es la Gemini key interna)
-const agroApiKey = import.meta.env.VITE_AGRO_API_KEY || ''
+// Endpoint del backend AI-API en FastAPI (via proxy Vite /ai-api)
+const AGRO_ENDPOINT = '/ai-api/v1/agro/ask'
 
 // Fuente de lecturas simuladas
 const READINGS_URL = 'https://verdeva-sensors.free.beeceptor.com/api/sensor-readings'
@@ -71,16 +66,16 @@ onMounted(async () => {
   }
 })
 
-// Inferir parámetro y unidad basado directamente en el ID del sensor
+// Inferir parámetro y unidad basado directamente en el ID del sensor (español)
 function inferParameter(sensor) {
   switch (sensor.sensor_id) {
-    case 101: return { parameter: 'air_temperature', unit: '°C' }
-    case 102: return { parameter: 'soil_moisture', unit: '%' }
-    case 103: return { parameter: 'light_intensity', unit: 'lux' }
-    case 104: return { parameter: 'rainfall', unit: 'mm' }
-    case 105: return { parameter: 'soil_ph', unit: 'pH' }
-    case 106: return { parameter: 'nutrient_level', unit: 'ppm' }
-    default: return { parameter: 'soil_moisture', unit: '%' }
+    case 101: return { parameter: 'temperatura_aire', unit: '°C' }
+    case 102: return { parameter: 'humedad_suelo', unit: '%' }
+    case 103: return { parameter: 'luz', unit: 'lux' }
+    case 104: return { parameter: 'lluvia', unit: 'mm' }
+    case 105: return { parameter: 'ph_suelo', unit: 'pH' }
+    case 106: return { parameter: 'nutrientes', unit: 'ppm' }
+    default: return { parameter: 'humedad_suelo', unit: '%' }
   }
 }
 
@@ -92,7 +87,6 @@ function buildPayload(sensor) {
   const { parameter, unit } = inferParameter(sensor)
 
   if (valueNum !== null) {
-    // question basada SOLO en el último Value
     return {
       question: `Último valor: ${valueNum}${unit ? ' ' + unit : ''}`,
       crop: 'maíz',
@@ -104,9 +98,8 @@ function buildPayload(sensor) {
       length: 'short'
     }
   }
-  // Caso educativo si no hay valor numérico
   return {
-    question: `Último valor no numérico para ${parameter}`,
+    question: `Consulta educativa sobre ${parameter}`,
     crop: 'maíz',
     stage: 'vegetativo',
     safe_mode: true,
@@ -127,7 +120,6 @@ async function askRecommendation(sensor) {
 
   const payload = buildPayload(sensor)
   const headers = { 'Content-Type': 'application/json' }
-  if (agroApiKey) headers['x-api-key'] = agroApiKey
 
   try {
     console.debug('[askRecommendation] POST', AGRO_ENDPOINT, 'payload:', payload)
@@ -142,11 +134,15 @@ async function askRecommendation(sensor) {
   } catch (err) {
     const status = err?.response?.status
     let msg = err?.message || 'Error desconocido'
+    // intentar extraer detalle del backend
+    const detail = err?.response?.data?.detail
+    if (detail && typeof detail === 'string') msg = detail
     if (status) {
-      if (status === 401 || status === 403) msg = 'API key inválida o faltante (401/403). Verifica VITE_AGRO_API_KEY.'
-      else if (status === 422) msg = 'Datos inválidos (422). Revisa parámetro, valor y unidad.'
-      else if (status >= 500) msg = `Error en servidor (${status}). Intenta nuevamente.`
-      else msg = `Error ${status}: ${msg}`
+      if (status === 400) msg = detail || 'Faltan datos mínimos (400). Envía question o parameter+value.'
+      else if (status === 422) msg = detail || 'Datos inválidos (422). Revisa tipos y valores.'
+      else if (status === 502) msg = detail || 'Servicio temporalmente indisponible (502). Reintenta.'
+      else if (status >= 500) msg = detail || `Error en servidor (${status}). Intenta nuevamente.`
+      else msg = detail || `Error ${status}: ${msg}`
     }
     console.error('[askRecommendation] error:', err)
     recommendations.value[id] = { loading: false, answer: null, recommendation: null, error: msg }
@@ -218,12 +214,17 @@ async function askRecommendation(sensor) {
               v-if="recommendations[sensor.sensor_id].recommendation"
               class="structured-rec"
             >
-              <div class="action-chip" :style="{ background: actionColor(recommendations[sensor.sensor_id].recommendation.action) }">
+              <div class="action-chip" :class="recommendations[sensor.sensor_id].recommendation.action">
                 {{ recommendations[sensor.sensor_id].recommendation.action }}
               </div>
               <div class="rec-row">Parámetro: <strong>{{ recommendations[sensor.sensor_id].recommendation.parameter }}</strong></div>
               <div class="rec-row" v-if="recommendations[sensor.sensor_id].recommendation.target_range">
-                Rango objetivo: {{ recommendations[sensor.sensor_id].recommendation.target_range.min }}–{{ recommendations[sensor.sensor_id].recommendation.target_range.max }} {{ recommendations[sensor.sensor_id].recommendation.target_range.unit }}
+                <template v-if="recommendations[sensor.sensor_id].recommendation.target_range.min !== null && recommendations[sensor.sensor_id].recommendation.target_range.max !== null">
+                  Rango objetivo: {{ recommendations[sensor.sensor_id].recommendation.target_range.min }}–{{ recommendations[sensor.sensor_id].recommendation.target_range.max }} {{ recommendations[sensor.sensor_id].recommendation.target_range.unit }}
+                </template>
+                <template v-else>
+                  Sin rango numérico específico (valor contextual).
+                </template>
               </div>
               <div class="rec-row" v-if="recommendations[sensor.sensor_id].recommendation.rationale">
                 <em>{{ recommendations[sensor.sensor_id].recommendation.rationale }}</em>
@@ -245,11 +246,15 @@ export default {
     formatDate(ts) {
       try { return new Date(ts).toLocaleString() } catch { return ts }
     },
-    actionColor(action) { // expuesto al template
-      switch (action) {
-        case 'increase': return '#1e88e5'
-        case 'decrease': return '#e53935'
-        case 'maintain': return '#43a047'
+    actionColor(action) { // mantener por compatibilidad si se usa en otro lugar
+      const a = (action || '').toLowerCase()
+      switch (a) {
+        case 'increase':
+        case 'aumentar': return '#1e88e5'
+        case 'decrease':
+        case 'disminuir': return '#e53935'
+        case 'maintain':
+        case 'mantener': return '#43a047'
         default: return '#555'
       }
     }
@@ -279,6 +284,13 @@ export default {
 .rec-error { color: #b00020; }
 .structured-rec { display: flex; flex-direction: column; gap: 4px; }
 .action-chip { display: inline-block; color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+.action-chip.aumentar { background: #1e88e5; }
+.action-chip.disminuir { background: #e53935; }
+.action-chip.mantener { background: #43a047; }
+/* fallback colores para inglés */
+.action-chip.increase { background: #1e88e5; }
+.action-chip.decrease { background: #e53935; }
+.action-chip.maintain { background: #43a047; }
 .rec-row { font-size: 13px; }
 .warnings { margin: 4px 0 0; padding-left: 16px; font-size: 12px; color: #b54d00; }
 .warnings li { list-style: none; }
