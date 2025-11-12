@@ -2,6 +2,14 @@
   command = "npm run build"
   publish = "dist"
 
+# Proxy en producción: /ai-api/* -> backend absoluto
+[[redirects]]
+  from = "/ai-api/*"
+  to = "https://ai-api-pearl-one.vercel.app/:splat"
+  status = 200
+  force = true
+
+# SPA fallback
 [[redirects]]
   from   = "/*"
   to     = "/index.html"
