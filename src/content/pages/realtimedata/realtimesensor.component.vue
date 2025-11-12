@@ -27,8 +27,8 @@ const recommendations = ref({})
 function resolveApiBase() {
   const raw = (import.meta.env.VITE_AI_API_BASE || '').trim()
   if (raw && /^https?:\/\//i.test(raw)) return raw.replace(/\/$/, '')
-  if (import.meta.env.DEV) return '/ai-api' // proxy local
-  return 'https://ai-api-pearl-one.vercel.app'
+  // Por defecto, usar path relativo para aprovechar proxy (dev) y redirect (prod)
+  return '/ai-api'
 }
 const API_BASE = resolveApiBase()
 const AGRO_ENDPOINT = `${API_BASE.replace(/\/$/, '')}/v1/agro/ask`
