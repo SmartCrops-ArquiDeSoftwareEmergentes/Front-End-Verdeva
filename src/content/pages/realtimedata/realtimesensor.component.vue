@@ -25,9 +25,7 @@ const recommendations = ref({})
 // En DEV sin variable => usar "/ai-api" (proxy Vite configurado en vite.config.js).
 // En PROD sin variable => fallback a despliegue público.
 function resolveApiBase() {
-  const raw = (import.meta.env.VITE_AI_API_BASE || '').trim()
-  if (raw && /^https?:\/\//i.test(raw)) return raw.replace(/\/$/, '')
-  // Por defecto, usar path relativo para aprovechar proxy (dev) y redirect (prod)
+  // Forzar siempre path relativo para que dev use proxy de Vite y prod use redirect de Netlify
   return '/ai-api'
 }
 const API_BASE = resolveApiBase()
