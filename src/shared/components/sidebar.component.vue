@@ -35,6 +35,10 @@
         <img src="/sidebar/icons/ICONOTIME.png" width="30" height="30" alt="" />
         <span>Lectura de Sensores</span>
       </router-link>
+      <router-link to="/chat" class="nav-link">
+        <span style="font-size: 30px;">💬</span>
+        <span>Chat IA Agrícola</span>
+      </router-link>
     </nav>
   </aside>
   <button class="burger-btn" v-if="!isOpen" @click="toggleSidebar">
