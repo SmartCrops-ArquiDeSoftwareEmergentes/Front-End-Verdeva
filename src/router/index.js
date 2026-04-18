@@ -42,11 +42,6 @@ const router = createRouter({
             name: 'CreateCrop',
             component: () => import('../content/pages/crops/components/create-crop.component.vue')
         },
-        {
-            path: '/chat',
-            name: 'Chat',
-            component: () => import('../content/pages/chat/chat.component.vue')
-        },
     ],
 });
 

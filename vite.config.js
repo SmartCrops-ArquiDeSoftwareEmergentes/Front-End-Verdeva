@@ -7,7 +7,7 @@ export default defineConfig({
     proxy: {
       // Proxy para la API de Gemini legacy (si aún se usa)
       '/api/gemini': {
-        target: 'https://ai-api-pearl-one.vercel.app',
+        target: 'https://ai-api-c9qs.vercel.app',
         changeOrigin: true,
         secure: true,
         // Mantener rewrite para permitir rutas variables: /api/gemini/* -> /* en el target
@@ -21,7 +21,7 @@ export default defineConfig({
       },
       // Proxy AI-API hacia Vercel para evitar CORS
       '/ai-api': {
-        target: 'https://ai-api-pearl-one.vercel.app',
+        target: 'https://ai-api-c9qs.vercel.app',
         changeOrigin: true,
         secure: true,
         rewrite: path => path.replace(/^\/ai-api/, '')

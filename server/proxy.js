@@ -1,5 +1,5 @@
 // Proxy local para la API de Gemini
-// Reenvía cualquier POST a /api/gemini/* hacia https://ai-api-pearl-one.vercel.app/*
+// Reenvia cualquier POST a /api/gemini/* hacia https://ai-api-c9qs.vercel.app/*
 // Usa la variable de entorno VITE_GEMINI_API_KEY si está presente.
 
 import 'dotenv/config'
@@ -9,7 +9,7 @@ import http from 'http'
 const app = express()
 app.use(express.json())
 
-const TARGET_BASE = 'https://ai-api-pearl-one.vercel.app'
+const TARGET_BASE = 'https://ai-api-c9qs.vercel.app'
 const PORT = process.env.PORT || 3001
 
 app.post('/api/gemini/*', async (req, res) => {

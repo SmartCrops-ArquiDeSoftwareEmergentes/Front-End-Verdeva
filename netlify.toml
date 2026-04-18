@@ -5,7 +5,7 @@
 # Proxy en producción: /ai-api/* -> backend absoluto
 [[redirects]]
   from = "/ai-api/*"
-  to = "https://ai-api-pearl-one.vercel.app/:splat"
+  to = "https://ai-api-c9qs.vercel.app/:splat"
   status = 200
   force = true
 

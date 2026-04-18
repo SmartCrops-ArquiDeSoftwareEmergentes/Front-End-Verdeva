@@ -71,7 +71,7 @@ Se ha implementado exitosamente un componente de chat IA agrícola integrado con
 ### 4️⃣ Integración API
 
 - ✅ **Endpoint**: `/v1/agro/chat`
-- ✅ **Proxy Netlify**: `/ai-api/*` → `https://ai-api-pearl-one.vercel.app/:splat`
+- ✅ **Proxy Netlify**: `/ai-api/*` → `https://ai-api-c9qs.vercel.app/:splat`
 - ✅ **Payload**:
   ```javascript
   {
@@ -230,7 +230,7 @@ Para problemas o dudas:
 
 1. Revisar el archivo `README.md` en `src/content/pages/chat/`
 2. Verificar la consola del navegador
-3. Comprobar que el backend esté disponible: https://ai-api-pearl-one.vercel.app/health
+3. Comprobar que el backend esté disponible: https://ai-api-c9qs.vercel.app/health
 
 ## ✨ Próximos Pasos Sugeridos
 
